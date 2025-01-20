@@ -1,5 +1,5 @@
 class AlbumService {
-    constructor() {
-      this._notes = [];
-    }
+  constructor() {}
 }
+
+module.exports = AlbumService;

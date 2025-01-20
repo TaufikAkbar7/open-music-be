@@ -1,7 +1,10 @@
 const Hapi = require('@hapi/hapi')
-const routes = require('./routes')
+const album = require('./api/album')
+const AlbumService = require('./services/album')
+const AlbumValidator = require('./validator/album')
 
 const init = async () => {
+  const albumService = new AlbumService();
   const server = Hapi.server({
     port: 9000,
     host: 'localhost',
@@ -12,7 +15,13 @@ const init = async () => {
     },
   })
 
-  server.route(routes)
+  await server.register({
+    plugin: album,
+    options: {
+      service: albumService,
+      validator: AlbumValidator
+    },
+  });
 
   await server.start()
   console.log('Server running on %s', server.info.uri)

@@ -1,30 +1,29 @@
-const routes = [
-    {
-      method: 'POST',
-      path: '/books',
-      handler: createEditBooks
-    },
-    {
-      method: 'GET',
-      path: '/books',
-      handler: getBooks
-    },
-    {
-      method: ['GET', 'PUT', 'DELETE'],
-      path: '/books/{bookId}',
-      handler: (req, h) => {
-        switch (req.method) {
-          case 'get':
-            return getBooks(req, h)
-          case 'put':
-            return createEditBooks(req, h)
-          case 'delete':
-            return deleteBooks(req, h)
-          default:
-            return
-        }
-      }
-    }
-  ]
+const routes = (handler) => [
+  {
+    method: 'POST',
+    path: '/album',
+    handler: handler.createAlbum,
+  },
+  {
+    method: 'GET',
+    path: '/album',
+    handler: handler.getAlbums,
+  },
+  {
+    method: 'GET',
+    path: '/album/{id}',
+    handler: handler.getAlbum,
+  },
+  {
+    method: 'PUT',
+    path: '/album/{id}',
+    handler: handler.updateAlbum,
+  },
+  {
+    method: 'DELETE',
+    path: '/album/{id}',
+    handler: handler.deleteAlbum,
+  },
+];
   
-  module.exports = routes
+module.exports = routes
