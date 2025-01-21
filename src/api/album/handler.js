@@ -1,32 +1,71 @@
 class AlbumHandler {
-    constructor(services) {
+    constructor(services, validator) {
         this._service = services;
+        this._validator = validator;
 
-        this.getAlbums = this.getAlbums.bind(this);
         this.getAlbum = this.getAlbum.bind(this);
         this.createAlbum = this.createAlbum.bind(this);
         this.updateAlbum = this.updateAlbum.bind(this);
         this.deleteAlbum = this.deleteAlbum.bind(this);
     }
 
-    getAlbums(req, res) {
-
+    async getAlbum(req, res) {
+        const id = req.params.id
+        const albums = await this._service.getAlbum(id)
+        const response = res.response({
+            status: 'success',
+            data: {
+                album: albums
+            },
+          });
+          response.code(200);
+          return response;
     }
 
-    getAlbum(req, res) {
+    async createAlbum(req, res) {
+        this._validator.validateCreateEditRequest(req.payload)
+            const { name, year } = req.payload
 
+            const albumId = await this._service.createAlbum({ name, year })
+            const response = res.response({
+                status: 'success',
+                data: {
+                    albumId,
+                },
+              });
+              response.code(201);
+              return response;
     }
 
-    createAlbum(req, res) {
+    async updateAlbum(req, res) {
+        const id = req.params.id
+        this._validator.validateCreateEditRequest(req.payload)
+        const { name, year } = req.payload
 
+        const albumId = await this._service.editAlbum({ id, name, year })
+        const response = res.response({
+            status: 'success',
+            message: 'Berhasil memperbarui album',
+            data: {
+                albumId,
+            },
+          });
+          response.code(200);
+          return response;
     }
 
-    updateAlbum(req, res) {
-
-    }
-
-    deleteAlbum(req, res) {
-
+    async deleteAlbum(req, res) {
+        const id = req.params.id
+        const albumId = await this._service.voidAlbum(id)
+        const response = res.response({
+            status: 'success',
+            message: 'Berhasil menghapus album',
+            data: {
+                albumId
+            },
+          });
+          response.code(200);
+          return response;
     }
 }
 

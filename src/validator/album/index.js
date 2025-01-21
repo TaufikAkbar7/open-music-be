@@ -1,10 +1,11 @@
+const ClientError = require('../../exceptions/ClientError');
 const { CreateEditAlbumSchema } = require('./schema');
  
 const AlbumValidator = {
   validateCreateEditRequest: (payload) => {
     const validationResult = CreateEditAlbumSchema.validate(payload);
     if (validationResult.error) {
-      throw new Error(validationResult.error.message);
+      throw new ClientError(validationResult.error.message);
     }
   },
 };

@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const Hapi = require('@hapi/hapi')
 const album = require('./api/album')
 const AlbumService = require('./services/album')
@@ -6,8 +8,8 @@ const AlbumValidator = require('./validator/album')
 const init = async () => {
   const albumService = new AlbumService();
   const server = Hapi.server({
-    port: 9000,
-    host: 'localhost',
+    port: process.env.PORT ?? 9000,
+    host: process.env.HOST,
     routes: {
       cors: {
         origin: ['*'],

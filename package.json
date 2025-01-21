@@ -4,11 +4,12 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./src/server.js",
-    "dev": "nodemon ./src/server.js",
+    "dev": "nodemon -L ./src/server.js",
     "prettier:check": "prettier --check .",
     "format": "prettier --write .",
     "lint:check": "eslint .",
-    "lint:fix": "eslint --fix ."
+    "lint:fix": "eslint --fix .",
+    "migrate": "node-pg-migrate"
   },
   "keywords": [],
   "author": "",
@@ -18,7 +19,10 @@
     "@hapi/hapi": "^21.3.12",
     "dotenv": "^16.4.7",
     "joi": "^17.13.3",
-    "nodemon": "^3.1.7"
+    "node-pg-migrate": "^7.9.0",
+    "nodemon": "^3.1.7",
+    "pg": "^8.13.1",
+    "uuid": "^11.0.5"
   },
   "devDependencies": {
     "eslint": "^8.57.1",
