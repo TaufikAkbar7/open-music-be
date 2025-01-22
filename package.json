@@ -6,7 +6,7 @@
     "start": "node ./src/server.js",
     "dev": "nodemon -L ./src/server.js",
     "prettier:check": "prettier --check .",
-    "format": "prettier --write .",
+    "format": "prettier --write ./src",
     "lint:check": "eslint .",
     "lint:fix": "eslint --fix .",
     "migrate": "node-pg-migrate"

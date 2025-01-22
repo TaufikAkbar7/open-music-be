@@ -1,5 +1,5 @@
-const Joi = require('joi');
- 
+const Joi = require('joi')
+
 const CreateEditSongSchema = Joi.object({
   title: Joi.string().required(),
   year: Joi.number().required(),
@@ -7,6 +7,6 @@ const CreateEditSongSchema = Joi.object({
   performer: Joi.string().required(),
   albumId: Joi.string().required(),
   duration: Joi.number().required()
-});
- 
-module.exports = { CreateEditSongSchema };
+})
+
+module.exports = { CreateEditSongSchema }

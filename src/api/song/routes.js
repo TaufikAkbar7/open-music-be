@@ -1,29 +1,29 @@
-const routes = (handler) => [
+const routes = handler => [
   {
     method: 'POST',
     path: '/songs',
-    handler: handler.createSong,
+    handler: handler.createSong
   },
   {
     method: 'GET',
     path: '/songs',
-    handler: handler.getSongs,
+    handler: handler.getSongs
   },
   {
     method: 'GET',
     path: '/songs/{id}',
-    handler: handler.getSong,
+    handler: handler.getSong
   },
   {
     method: 'PUT',
     path: '/songs/{id}',
-    handler: handler.updateSong,
+    handler: handler.updateSong
   },
   {
     method: 'DELETE',
     path: '/songs/{id}',
-    handler: handler.deleteSong,
-  },
-];
-  
+    handler: handler.deleteSong
+  }
+]
+
 module.exports = routes
