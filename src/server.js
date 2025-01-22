@@ -7,13 +7,14 @@ const AlbumValidator = require('./validator/album')
 const song = require('./api/song')
 const SongService = require('./services/song')
 const SongValidator = require('./validator/song')
+const ClientError = require('./exceptions/clientError')
 
 const init = async () => {
   const albumService = new AlbumService()
   const songService = new SongService()
 
   const server = Hapi.server({
-    port: process.env.PORT ?? 9000,
+    port: process.env.PORT ? process.env.PORT : 9000,
     host: process.env.HOST,
     routes: {
       cors: {

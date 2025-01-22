@@ -10,7 +10,7 @@ class AlbumHandler {
   }
 
   async getAlbum(req, res) {
-    const id = req.params.id
+    const { id } = req.params
     const albums = await this._service.getAlbum(id)
     const response = res.response({
       status: 'success',
@@ -38,7 +38,7 @@ class AlbumHandler {
   }
 
   async updateAlbum(req, res) {
-    const id = req.params.id
+    const { id } = req.params
     this._validator.validateCreateEditRequest(req.payload)
     const { name, year } = req.payload
 
@@ -55,7 +55,7 @@ class AlbumHandler {
   }
 
   async deleteAlbum(req, res) {
-    const id = req.params.id
+    const { id } = req.params
     const albumId = await this._service.voidAlbum(id)
     const response = res.response({
       status: 'success',

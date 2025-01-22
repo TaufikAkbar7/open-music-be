@@ -16,4 +16,10 @@ const DTOSong = ({
   albumId: album_id
 })
 
-module.exports = { DTOSong }
+const DTOSearchSong = ({ id, title, performer }) => ({
+  id,
+  title,
+  performer
+})
+
+module.exports = { DTOSong, DTOSearchSong }

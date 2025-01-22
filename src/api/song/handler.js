@@ -11,12 +11,18 @@ class SongHandler {
   }
 
   async getSongs(req, res) {
-    const id = req.params.id
-    const songs = await this._service.getSongs(id)
+    const { title, performer } = req.query
+    const newTitle = title ? title.toLowerCase() : ''
+    const newPerformer = performer ? performer.toLowerCase() : ''
+
+    const songs = await this._service.getSongs({
+      title: newTitle,
+      performer: newPerformer
+    })
     const response = res.response({
       status: 'success',
       data: {
-        songs: songs
+        songs
       }
     })
     response.code(200)
@@ -24,12 +30,12 @@ class SongHandler {
   }
 
   async getSong(req, res) {
-    const id = req.params.id
+    const { id } = req.params
     const song = await this._service.getSong(id)
     const response = res.response({
       status: 'success',
       data: {
-        song: song
+        song
       }
     })
     response.code(200)
@@ -38,9 +44,16 @@ class SongHandler {
 
   async createSong(req, res) {
     this._validator.validateCreateEditRequest(req.payload)
-    const { name, year } = req.payload
+    const { title, year, genre, performer, duration, albumId } = req.payload
 
-    const songId = await this._service.createSong({ name, year })
+    const songId = await this._service.createSong({
+      title,
+      year,
+      genre,
+      performer,
+      duration,
+      album_id: albumId
+    })
     const response = res.response({
       status: 'success',
       data: {
@@ -52,11 +65,19 @@ class SongHandler {
   }
 
   async updateSong(req, res) {
-    const id = req.params.id
+    const { id } = req.params
     this._validator.validateCreateEditRequest(req.payload)
-    const { name, year } = req.payload
+    const { title, year, genre, performer, duration, albumId } = req.payload
 
-    const songId = await this._service.editSong({ id, name, year })
+    const songId = await this._service.editSong({
+      id,
+      title,
+      year,
+      genre,
+      performer,
+      duration,
+      album_id: albumId
+    })
     const response = res.response({
       status: 'success',
       message: 'Berhasil memperbarui lagu',
@@ -69,7 +90,7 @@ class SongHandler {
   }
 
   async deleteSong(req, res) {
-    const id = req.params.id
+    const { id } = req.params
     const songId = await this._service.voidSong(id)
     const response = res.response({
       status: 'success',
