@@ -5,8 +5,8 @@ const CreateEditSongSchema = Joi.object({
   year: Joi.number().required(),
   genre: Joi.string().required(),
   performer: Joi.string().required(),
-  albumId: Joi.string().required(),
-  duration: Joi.number().required()
+  albumId: Joi.string().optional(),
+  duration: Joi.number().optional()
 })
 
 module.exports = { CreateEditSongSchema }

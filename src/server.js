@@ -39,6 +39,46 @@ const init = async () => {
     }
   ])
 
+  // custom global errors
+  server.ext('onPreResponse', (request, h) => {
+    const { response } = request
+
+    // handle error from client
+    if (response instanceof ClientError || response.isClientError) {
+      const newResponse = h.response({
+        status: 'fail',
+        message: response.message
+      })
+      newResponse.code(response.statusCode)
+      return newResponse
+    }
+
+    // handle if params id not uuid
+    if (
+      response.routine === 'string_to_uuid' &&
+      response.severity === 'ERROR'
+    ) {
+      const newResponse = h.response({
+        status: 'fail',
+        message: 'Data tidak ditemukan'
+      })
+      newResponse.code(404)
+      return newResponse
+    }
+
+    // handle error from server
+    if (response instanceof Error) {
+      const newResponse = h.response({
+        status: 'error',
+        message: response.message
+      })
+      newResponse.code(500)
+      return newResponse
+    }
+
+    return h.continue
+  })
+
   await server.start()
   console.log('Server running on %s', server.info.uri)
 }
