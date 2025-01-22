@@ -1,13 +1,13 @@
 const ClientError = require('../../exceptions/clientError');
-const { CreateEditAlbumSchema } = require('./schema');
+const { CreateEditSongSchema } = require('./schema');
  
-const AlbumValidator = {
+const SongValidator = {
   validateCreateEditRequest: (payload) => {
-    const validationResult = CreateEditAlbumSchema.validate(payload);
+    const validationResult = CreateEditSongSchema.validate(payload);
     if (validationResult.error) {
       throw new ClientError(validationResult.error.message);
     }
   },
 };
  
-module.exports = AlbumValidator;
+module.exports = SongValidator;
