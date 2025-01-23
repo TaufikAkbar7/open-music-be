@@ -2,12 +2,6 @@ class SongHandler {
   constructor(services, validator) {
     this._service = services
     this._validator = validator
-
-    this.getSongs = this.getSongs.bind(this)
-    this.getSong = this.getSong.bind(this)
-    this.createSong = this.createSong.bind(this)
-    this.updateSong = this.updateSong.bind(this)
-    this.deleteSong = this.deleteSong.bind(this)
   }
 
   async getSongs(req, res) {

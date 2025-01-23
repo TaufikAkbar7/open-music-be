@@ -2,11 +2,6 @@ class AlbumHandler {
   constructor(services, validator) {
     this._service = services
     this._validator = validator
-
-    this.getAlbum = this.getAlbum.bind(this)
-    this.createAlbum = this.createAlbum.bind(this)
-    this.updateAlbum = this.updateAlbum.bind(this)
-    this.deleteAlbum = this.deleteAlbum.bind(this)
   }
 
   async getAlbum(req, res) {
