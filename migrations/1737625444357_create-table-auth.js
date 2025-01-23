@@ -4,17 +4,12 @@
  * @returns {Promise<void> | void}
  */
 exports.up = (pgm) => {
- pgm.createTable('t_album', {
-   id: {
-    type: 'uuid',
-    primaryKey: true
-   },
-   name: { type: 'varchar(255)', notNull: true },
-   year: {
-    type: 'int4',
-    notNull: true
-   },
- });
+pgm.createTable('t_auth', {
+  token: {
+    type: 'TEXT',
+    notNull: true,
+  },
+});
 };
 
 /**
@@ -23,7 +18,5 @@ exports.up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 exports.down = (pgm) => {
- pgm.dropTable('t_album', {
-  cascade: true
- });
+  pgm.dropTable('t_auth');
 };
