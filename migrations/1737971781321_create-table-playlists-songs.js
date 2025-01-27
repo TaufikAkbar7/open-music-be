@@ -4,25 +4,26 @@
  * @returns {Promise<void> | void}
  */
 exports.up = (pgm) => {
- pgm.createTable('t_users', {
+ pgm.createTable('t_playlist_songs', {
   id: {
     type: 'uuid',
     primaryKey: true,
   },
-  username: {
-    type: 'VARCHAR(50)',
-    unique: true,
+  playlist_id: {
+    type: 'uuid',
     notNull: true,
+    references: '"t_playlists"',
+    onDelete: 'cascade'
   },
-  password: {
-    type: 'TEXT',
+  song_id: {
+    type: 'uuid',
     notNull: true,
+    references: '"t_song"',
+    onDelete: 'cascade'
   },
-  fullname: {
-    type: 'TEXT',
-    notNull: true,
-  },
- });   
+ });
+ pgm.createIndex('t_playlist_songs', 'playlist_id');
+ pgm.createIndex('t_playlist_songs', 'song_id');
 };
 
 /**
@@ -31,5 +32,6 @@ exports.up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 exports.down = (pgm) => {
- pgm.dropTable('t_users');
+ pgm.dropTable('t_playlist_songs');
 };
+   

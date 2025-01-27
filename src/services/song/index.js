@@ -33,6 +33,7 @@ class SongService {
 
     const result = await this._pool.query(query)
     if (!result.rows.length) {
+      console.log('xxx')
       throw new NotFoundError('Lagu tidak ditemukan')
     }
 

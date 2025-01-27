@@ -4,25 +4,23 @@
  * @returns {Promise<void> | void}
  */
 exports.up = (pgm) => {
- pgm.createTable('t_users', {
+ pgm.createTable('t_playlists', {
   id: {
     type: 'uuid',
     primaryKey: true,
   },
-  username: {
+  name: {
     type: 'VARCHAR(50)',
-    unique: true,
     notNull: true,
   },
-  password: {
-    type: 'TEXT',
+  owner: {
+    type: 'uuid',
     notNull: true,
+    references: '"t_users"',
+    onDelete: 'cascade'
   },
-  fullname: {
-    type: 'TEXT',
-    notNull: true,
-  },
- });   
+ });
+ pgm.createIndex('t_playlists', 'owner');
 };
 
 /**
@@ -31,5 +29,5 @@ exports.up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 exports.down = (pgm) => {
- pgm.dropTable('t_users');
+ pgm.dropTable('t_playlists');
 };

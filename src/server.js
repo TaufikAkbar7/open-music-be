@@ -2,27 +2,35 @@ require('dotenv').config()
 
 const Hapi = require('@hapi/hapi')
 const Jwt = require('@hapi/jwt')
+const ClientError = require('./exceptions/clientError')
 
 const album = require('./api/album')
 const AlbumService = require('./services/album')
 const AlbumValidator = require('./validator/album')
+
 const song = require('./api/song')
 const SongService = require('./services/song')
 const SongValidator = require('./validator/song')
-const ClientError = require('./exceptions/clientError')
+
 const users = require('./api/user')
 const UsersService = require('./services/user')
 const UsersValidator = require('./validator/user')
+
 const auth = require('./api/authentication')
 const AuthService = require('./services/authentication')
 const AuthValidator = require('./validator/authentication')
 const TokenManager = require('./tokenize/TokenManager')
+
+const playlists = require('./api/playlists')
+const PlaylistsService = require('./services/playlists')
+const PlaylistsValidator = require('./validator/playlists')
 
 const init = async () => {
   const albumService = new AlbumService()
   const songService = new SongService()
   const usersService = new UsersService()
   const authService = new AuthService()
+  const playlistsService = new PlaylistsService()
 
   // init server
   const server = Hapi.server({
@@ -90,6 +98,14 @@ const init = async () => {
         tokenManager: TokenManager,
         validator: AuthValidator
       }
+    },
+    {
+      plugin: playlists,
+      options: {
+        songService,
+        service: playlistsService,
+        validator: PlaylistsValidator
+      }
     }
   ])
 
@@ -117,6 +133,16 @@ const init = async () => {
         message: 'Data tidak ditemukan'
       })
       newResponse.code(404)
+      return newResponse
+    }
+
+    // handle error authentication
+    if (response instanceof Error && response.output.statusCode === 401) {
+      const newResponse = h.response({
+        status: 'fail',
+        message: response.message
+      })
+      newResponse.code(401)
       return newResponse
     }
 
