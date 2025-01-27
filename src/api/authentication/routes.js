@@ -12,7 +12,7 @@ const routes = handler => [
   {
     method: 'DELETE',
     path: '/authentications',
-    handler: (request, h) => handler.authVoid(request, h)
+    handler: (request, h) => handler.authDeleteRefreshToken(request, h)
   }
 ]
 

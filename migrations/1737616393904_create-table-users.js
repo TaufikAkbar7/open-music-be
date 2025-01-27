@@ -4,7 +4,7 @@
  * @returns {Promise<void> | void}
  */
 exports.up = (pgm) => {
- pgm.createTable('users', {
+ pgm.createTable('t_users', {
   id: {
     type: 'VARCHAR(50)',
     primaryKey: true,

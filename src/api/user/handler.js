@@ -5,7 +5,7 @@ class UserHandler {
   }
 
   async createUser(req, res) {
-    this._validator.validateCreateEditRequest(req.payload)
+    this._validator.validateCreateUserRequest(req.payload)
     const { username, password, fullname } = req.payload
 
     const userId = await this._service.createUser({

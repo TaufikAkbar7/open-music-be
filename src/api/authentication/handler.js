@@ -10,10 +10,7 @@ class AuthHandler {
     this._validator.validateLoginRequest(req.payload)
     const { username, password } = req.payload
 
-    const id = await this._service.login({
-      username,
-      password
-    })
+    const id = await this._usersService.login({ username, password })
     const accessToken = this._tokenManager.generateAccessToken({ id })
     const refreshToken = this._tokenManager.generateRefreshToken({ id })
 
