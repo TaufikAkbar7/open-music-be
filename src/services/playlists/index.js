@@ -3,6 +3,7 @@ const { v4 } = require('uuid')
 const InvariantError = require('../../exceptions/invariantError')
 const NotFoundError = require('../../exceptions/notFoundError')
 const ForbiddenError = require('../../exceptions/forbiddenError')
+const { DTOSongsPlaylist, DTOPlaylistActivity } = require('../../dto/playlists')
 
 class PlaylistsService {
   constructor() {
@@ -55,27 +56,7 @@ class PlaylistsService {
       throw new NotFoundError('Lagu berdasarkan playlist tidak ditemukan')
     }
 
-    const mappingResults = result.rows.reduce((acc, item) => {
-      let obj = acc
-      if (!obj) {
-        obj = {
-          id: item.id,
-          name: item.name,
-          username: item.username,
-          songs: []
-        }
-      }
-      if (item.song_id && item.song_title && item.song_performer) {
-        obj.songs.push({
-          id: item.song_id,
-          title: item.song_title,
-          performer: item.song_performer
-        })
-      }
-      return obj
-    }, null)
-
-    return mappingResults
+    return DTOSongsPlaylist(result.rows)
   }
 
   async addPlaylist({ name, ownerId }) {
@@ -183,6 +164,47 @@ class PlaylistsService {
     if (data.owner_id !== owner && data.user_collab_id !== owner) {
       throw new ForbiddenError('Anda tidak berhak mengakses resource ini')
     }
+  }
+
+  async getPlaylistsActivity(id) {
+    const query = {
+      name: 'get-playlists-activities',
+      text: `
+        SELECT
+          tpsa.playlist_id AS playlist_id,
+          tu.username AS username,
+          ts.title AS title,
+          tpsa.action AS action,
+          tpsa.time AS time
+        FROM t_playlists_song_activities AS tpsa
+          INNER JOIN t_song AS ts ON tpsa.song_id = ts.id
+          INNER JOIN t_users AS tu ON tpsa.user_id = tu.id
+        WHERE tpsa.playlist_id = $1
+        ORDER BY tpsa.time ASC
+      `,
+      values: [id]
+    }
+
+    const result = await this._pool.query(query)
+    return DTOPlaylistActivity(result.rows)
+  }
+
+  async addPlaylistActivity({ playlistId, songId, userId, action }) {
+    const id = v4()
+    const time = new Date().toISOString()
+    const query = {
+      name: 'create-playlist-activities',
+      text: 'INSERT INTO t_playlists_song_activities VALUES($1, $2, $3, $4, $5, $6) RETURNING id',
+      values: [id, playlistId, songId, userId, action, time]
+    }
+
+    const result = await this._pool.query(query)
+
+    if (!result.rows[0].id) {
+      throw new InvariantError('Activities gagal ditambahkan')
+    }
+
+    return result.rows[0].id
   }
 }
 
