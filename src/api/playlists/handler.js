@@ -39,7 +39,12 @@ class PlaylistsHandler {
       owner: credentialId
     })
     await this._service.addSongOnPlaylist({ playlistId: id, songId })
-    await this._service.addPlaylistActivity({ playlistId: id, songId, userId: credentialId, action: 'add' })
+    await this._service.addPlaylistActivity({
+      playlistId: id,
+      songId,
+      userId: credentialId,
+      action: 'add'
+    })
     const response = res.response({
       status: 'success',
       message: 'Berhasil menambahkan lagu dari playlist'
@@ -118,7 +123,12 @@ class PlaylistsHandler {
       owner: credentialId
     })
     await this._service.deleteSongOnPlaylist({ songId, playlistId: id })
-    await this._service.addPlaylistActivity({ playlistId: id, songId, userId: credentialId, action: 'delete' })
+    await this._service.addPlaylistActivity({
+      playlistId: id,
+      songId,
+      userId: credentialId,
+      action: 'delete'
+    })
     const response = res.response({
       status: 'success',
       message: 'Berhasil delete lagu dari playlist'
@@ -138,7 +148,7 @@ class PlaylistsHandler {
     const data = await this._service.getPlaylistsActivity(id)
     const response = res.response({
       status: 'success',
-      data: data
+      data
     })
     response.code(200)
     return response

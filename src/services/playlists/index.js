@@ -153,7 +153,7 @@ class PlaylistsService {
       `,
       values: [playlistId]
     }
-    
+
     const result = await this._pool.query(query)
     const data = result.rows[0]
 
