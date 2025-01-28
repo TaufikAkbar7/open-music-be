@@ -34,7 +34,7 @@ class PlaylistsHandler {
     this._validator.validateAddSongRequest(req.payload)
 
     await this._songService.getSong(songId)
-    await this._service.verifyPlaylistOwner({
+    await this._service.verifyPlaylistCollab({
       playlistId: id,
       owner: credentialId
     })
@@ -48,7 +48,8 @@ class PlaylistsHandler {
   }
 
   async getAllPlaylists(req, res) {
-    const data = await this._service.getPlaylists()
+    const { id: credentialId } = req.auth.credentials
+    const data = await this._service.getPlaylists(credentialId)
     const response = res.response({
       status: 'success',
       data: {
@@ -66,7 +67,7 @@ class PlaylistsHandler {
       throw new ClientError('Required params playlist id')
     }
 
-    await this._service.verifyPlaylistOwner({
+    await this._service.verifyPlaylistCollab({
       playlistId: id,
       owner: credentialId
     })
@@ -111,7 +112,7 @@ class PlaylistsHandler {
     this._validator.validateAddSongRequest(req.payload)
 
     await this._songService.getSong(songId)
-    await this._service.verifyPlaylistOwner({
+    await this._service.verifyPlaylistCollab({
       playlistId: id,
       owner: credentialId
     })

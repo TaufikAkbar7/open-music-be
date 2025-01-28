@@ -25,12 +25,17 @@ const playlists = require('./api/playlists')
 const PlaylistsService = require('./services/playlists')
 const PlaylistsValidator = require('./validator/playlists')
 
+const collaborations = require('./api/collaborations')
+const CollaborationsService = require('./services/collaborations')
+const CollaborationsValidator = require('./validator/collaborations')
+
 const init = async () => {
   const albumService = new AlbumService()
   const songService = new SongService()
   const usersService = new UsersService()
   const authService = new AuthService()
   const playlistsService = new PlaylistsService()
+  const collaborationsService = new CollaborationsService()
 
   // init server
   const server = Hapi.server({
@@ -105,6 +110,14 @@ const init = async () => {
         songService,
         service: playlistsService,
         validator: PlaylistsValidator
+      }
+    },
+    {
+      plugin: collaborations,
+      options: {
+        playlistsService,
+        service: collaborationsService,
+        validator: CollaborationsValidator
       }
     }
   ])

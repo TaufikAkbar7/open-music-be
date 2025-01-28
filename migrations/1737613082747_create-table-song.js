@@ -31,4 +31,5 @@ exports.up = (pgm) => {
  */
 exports.down = (pgm) => {
  pgm.dropTable('t_song');
+ pgm.dropIndex('t_song', 'album_id');
 };

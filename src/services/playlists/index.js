@@ -9,7 +9,7 @@ class PlaylistsService {
     this._pool = new Pool()
   }
 
-  async getPlaylists() {
+  async getPlaylists(id) {
     const query = {
       name: 'get-playlists',
       text: `
@@ -18,16 +18,14 @@ class PlaylistsService {
           tp.name AS name,
           tu.username AS username
         FROM t_playlists AS tp
-          INNER JOIN t_users AS tu ON tp.owner = tu.id
-      `
+          LEFT JOIN t_users AS tu ON tp.owner = tu.id
+          LEFT JOIN t_collaborations tc on tc.playlist_id = tp.id
+        WHERE tp.owner = $1 OR tc.user_id = $1
+      `,
+      values: [id]
     }
 
     const result = await this._pool.query(query)
-
-    if (!result.rows.length) {
-      throw new NotFoundError('Playlists tidak ditemukan')
-    }
-
     return result.rows
   }
 
@@ -152,11 +150,37 @@ class PlaylistsService {
       values: [playlistId]
     }
     const result = await this._pool.query(query)
+    const data = result.rows[0]
+
     if (!result.rows.length) {
       throw new NotFoundError('Playlist tidak ditemukan')
     }
-    const data = result.rows[0]
     if (data.owner !== owner) {
+      throw new ForbiddenError('Anda tidak berhak mengakses resource ini')
+    }
+  }
+
+  async verifyPlaylistCollab({ playlistId, owner }) {
+    const query = {
+      text: `
+      SELECT 
+        tc.user_id as user_collab_id,
+        tp.owner as owner_id
+      FROM t_playlists AS tp 
+        LEFT JOIN t_collaborations AS tc ON tp.id = tc.playlist_id
+        WHERE tp.id = $1
+      `,
+      values: [playlistId]
+    }
+    
+    const result = await this._pool.query(query)
+    const data = result.rows[0]
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Playlist tidak ditemukan')
+    }
+
+    if (data.owner_id !== owner && data.user_collab_id !== owner) {
       throw new ForbiddenError('Anda tidak berhak mengakses resource ini')
     }
   }

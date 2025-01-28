@@ -33,5 +33,7 @@ exports.up = (pgm) => {
  */
 exports.down = (pgm) => {
  pgm.dropTable('t_playlist_songs');
+ pgm.createIndex('t_playlist_songs', 'playlist_id');
+ pgm.createIndex('t_playlist_songs', 'song_id');
 };
    
