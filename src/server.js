@@ -2,6 +2,7 @@ require('dotenv').config()
 
 const Hapi = require('@hapi/hapi')
 const Jwt = require('@hapi/jwt')
+const amqp = require('amqplib')
 const ClientError = require('./exceptions/clientError')
 
 const album = require('./api/album')
@@ -29,6 +30,13 @@ const collaborations = require('./api/collaborations')
 const CollaborationsService = require('./services/collaborations')
 const CollaborationsValidator = require('./validator/collaborations')
 
+const _exports = require('./api/exports')
+const ProducerService = require('./services/rabbitmq/producterService')
+const ExportsValidator = require('./validator/exports')
+
+const ListenerService = require('./services/rabbitmq/listenerService')
+const MailtrapService = require('./services/mailtrap')
+
 const init = async () => {
   const albumService = new AlbumService()
   const songService = new SongService()
@@ -36,6 +44,8 @@ const init = async () => {
   const authService = new AuthService()
   const playlistsService = new PlaylistsService()
   const collaborationsService = new CollaborationsService()
+  const mailtrapService = new MailtrapService()
+  const listenerService = new ListenerService(playlistsService, mailtrapService)
 
   // init server
   const server = Hapi.server({
@@ -119,6 +129,14 @@ const init = async () => {
         service: collaborationsService,
         validator: CollaborationsValidator
       }
+    },
+    {
+      plugin: _exports,
+      options: {
+        service: ProducerService,
+        playlistService: playlistsService,
+        validator: ExportsValidator
+      }
     }
   ])
 
@@ -170,6 +188,18 @@ const init = async () => {
     }
 
     return h.continue
+  })
+
+  // listener mq
+  const connection = await amqp.connect(process.env.RABBITMQ_SERVER)
+  const channel = await connection.createChannel()
+
+  await channel.assertQueue('export:playlists', {
+    durable: true
+  })
+
+  channel.consume('export:playlists', listenerService.getMessagePlaylist, {
+    noAck: true
   })
 
   await server.start()
