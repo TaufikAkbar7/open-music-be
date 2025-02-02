@@ -18,6 +18,20 @@ const routes = handler => [
     method: 'DELETE',
     path: '/albums/{id}',
     handler: (request, h) => handler.deleteAlbum(request, h)
+  },
+  {
+    method: 'POST',
+    path: '/albums/{id}/covers',
+    handler: (request, h) => handler.addAlbumCover(request, h),
+    options: {
+      payload: {
+        allow: 'multipart/form-data',
+        multipart: true,
+        output: 'stream',
+        parse: true,
+        maxBytes: 1000 * 1000 * 5
+      }
+    }
   }
 ]
 

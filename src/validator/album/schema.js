@@ -5,4 +5,18 @@ const CreateEditAlbumSchema = Joi.object({
   year: Joi.number().required()
 })
 
-module.exports = { CreateEditAlbumSchema }
+const CoverAlbumSchema = Joi.object({
+  'content-type': Joi.string()
+    .valid(
+      'image/apng',
+      'image/avif',
+      'image/gif',
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'image/jpg'
+    )
+    .required()
+}).unknown()
+
+module.exports = { CreateEditAlbumSchema, CoverAlbumSchema }

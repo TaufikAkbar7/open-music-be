@@ -3,6 +3,8 @@ require('dotenv').config()
 const Hapi = require('@hapi/hapi')
 const Jwt = require('@hapi/jwt')
 const amqp = require('amqplib')
+const Inert = require('@hapi/inert')
+const path = require('path')
 const ClientError = require('./exceptions/clientError')
 
 const album = require('./api/album')
@@ -37,6 +39,9 @@ const ExportsValidator = require('./validator/exports')
 const ListenerService = require('./services/rabbitmq/listenerService')
 const MailtrapService = require('./services/mailtrap')
 
+const uploads = require('./api/upload')
+const StorageService = require('./services/storage')
+
 const init = async () => {
   const albumService = new AlbumService()
   const songService = new SongService()
@@ -46,6 +51,9 @@ const init = async () => {
   const collaborationsService = new CollaborationsService()
   const mailtrapService = new MailtrapService()
   const listenerService = new ListenerService(playlistsService, mailtrapService)
+  const storageService = new StorageService(
+    path.resolve(__dirname, 'assets/uploads/images')
+  )
 
   // init server
   const server = Hapi.server({
@@ -58,10 +66,13 @@ const init = async () => {
     }
   })
 
-  // register plugin jwt
+  // register plugin eksternal
   await server.register([
     {
       plugin: Jwt
+    },
+    {
+      plugin: Inert
     }
   ])
 
@@ -87,6 +98,7 @@ const init = async () => {
     {
       plugin: album,
       options: {
+        storageService,
         service: albumService,
         validator: AlbumValidator
       }
@@ -137,6 +149,9 @@ const init = async () => {
         playlistService: playlistsService,
         validator: ExportsValidator
       }
+    },
+    {
+      plugin: uploads
     }
   ])
 
@@ -168,7 +183,11 @@ const init = async () => {
     }
 
     // handle error authentication
-    if (response instanceof Error && response.output.statusCode === 401) {
+    if (
+      response instanceof Error &&
+      response.output &&
+      response.output.statusCode === 401
+    ) {
       const newResponse = h.response({
         status: 'fail',
         message: response.message
@@ -178,7 +197,11 @@ const init = async () => {
     }
 
     // handle error from server
-    if (response instanceof Error) {
+    if (
+      response instanceof Error &&
+      response.output &&
+      response.output.statusCode === 500
+    ) {
       const newResponse = h.response({
         status: 'error',
         message: response.message
