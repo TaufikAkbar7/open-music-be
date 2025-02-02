@@ -18,6 +18,8 @@ services:
         - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
     networks:
         - rabbitmq_net
+  redis:
+    image: redis:latest
 volumes:
   postgres_data:
 

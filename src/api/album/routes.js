@@ -32,6 +32,27 @@ const routes = handler => [
         maxBytes: 1000 * 1000 * 5
       }
     }
+  },
+  {
+    method: 'POST',
+    path: '/albums/{id}/likes',
+    handler: (request, h) => handler.addAlbumLike(request, h),
+    options: {
+      auth: 'openmusic_jwt'
+    }
+  },
+  {
+    method: 'DELETE',
+    path: '/albums/{id}/likes',
+    handler: (request, h) => handler.deleteAlbumLike(request, h),
+    options: {
+      auth: 'openmusic_jwt'
+    }
+  },
+  {
+    method: 'GET',
+    path: '/albums/{id}/likes',
+    handler: (request, h) => handler.getAlbumLikeCount(request, h)
   }
 ]
 

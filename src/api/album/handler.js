@@ -1,3 +1,5 @@
+const ClientError = require('../../exceptions/clientError')
+
 class AlbumHandler {
   constructor(services, storageServices, validator) {
     this._service = services
@@ -85,6 +87,75 @@ class AlbumHandler {
       message: 'Server error'
     })
     response.code(500)
+    return response
+  }
+
+  async getAlbumLikeCount(req, res) {
+    const { id } = req.params
+
+    const { data, source } = await this._service.getCountLikeAlbum(id)
+
+    if (source === 'cache') {
+      const response = res
+        .response({
+          status: 'success',
+          data: {
+            likes: data
+          }
+        })
+        .header('X-Data-Source', 'cache')
+      response.code(200)
+
+      return response
+    }
+
+    const response = res.response({
+      status: 'success',
+      data: {
+        likes: data
+      }
+    })
+    response.code(200)
+
+    return response
+  }
+
+  async addAlbumLike(req, res) {
+    const { id } = req.params
+    const { id: credentialId } = req.auth.credentials
+
+    if (!id) {
+      throw new ClientError('Required params album id')
+    }
+
+    await this._service.verifyLikeAlbum({ userId: credentialId, albumId: id })
+    await this._service.postLikeAlbum({ userId: credentialId, albumId: id })
+
+    const response = res.response({
+      status: 'success',
+      message: 'Like berhasil ditambahkan ke album'
+    })
+    response.code(201)
+
+    return response
+  }
+
+  async deleteAlbumLike(req, res) {
+    const { id } = req.params
+    const { id: credentialId } = req.auth.credentials
+
+    if (!id) {
+      throw new ClientError('Required params album id')
+    }
+
+    await this._service.voidLikeAlbum({ userId: credentialId, albumId: id })
+
+    const response = res.response({
+      status: 'success',
+      message: 'Like berhasil dihapus dari album'
+    })
+    response.code(200)
+
     return response
   }
 }

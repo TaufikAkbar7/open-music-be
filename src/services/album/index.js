@@ -1,12 +1,14 @@
 const { Pool } = require('pg')
 const { v4 } = require('uuid')
 const DTOAlbumSongs = require('../../dto/album')
+const ClientError = require('../../exceptions/clientError')
 const InvariantError = require('../../exceptions/invariantError')
 const NotFoundError = require('../../exceptions/notFoundError')
 
 class AlbumService {
-  constructor() {
+  constructor(redisService) {
     this._pool = new Pool()
+    this._redisService = redisService
   }
 
   async getAlbum(id) {
@@ -98,6 +100,92 @@ class AlbumService {
     if (!result.rows.length) {
       throw new NotFoundError('Gagal memperbarui album. Id tidak ditemukan')
     }
+
+    return result.rows[0].id
+  }
+
+  async getCountLikeAlbum(id) {
+    try {
+      const result = await this._redisService.get(`albums:${id}`)
+
+      return {
+        data: JSON.parse(result),
+        source: 'cache'
+      }
+    } catch (error) {
+      const query = {
+        name: 'get-count-album-likes',
+        text: 'SELECT COUNT(tual.id) FROM t_user_album_likes AS tual WHERE tual.album_id = $1',
+        values: [id]
+      }
+
+      const data = await this._pool.query(query)
+
+      if (!data.rows.length) {
+        throw new NotFoundError('Album tidak ditemukan')
+      }
+
+      const count = Number(data.rows[0].count)
+      await this._redisService.set({
+        key: `albums:${id}`,
+        value: JSON.stringify(count),
+        expirationInSecond: 1800
+      })
+
+      return {
+        data: count,
+        source: 'database'
+      }
+    }
+  }
+
+  async verifyLikeAlbum({ userId, albumId }) {
+    const query = {
+      name: 'verify-user-album-likes',
+      text: 'SELECT * FROM t_user_album_likes WHERE user_id = $1 AND album_id = $2',
+      values: [userId, albumId]
+    }
+
+    const result = await this._pool.query(query)
+
+    if (result.rows.length) {
+      throw new ClientError('Anda sudah memberikan like pada album ini')
+    }
+  }
+
+  async postLikeAlbum({ userId, albumId }) {
+    const id = v4()
+    const query = {
+      name: 'create-user-album-likes',
+      text: 'INSERT INTO t_user_album_likes VALUES($1, $2, $3) RETURNING id',
+      values: [id, userId, albumId]
+    }
+
+    const result = await this._pool.query(query)
+
+    if (!result.rows[0].id) {
+      throw new InvariantError('Like gagal ditambahkan')
+    }
+
+    await this._redisService.delete(`albums:${albumId}`)
+
+    return result.rows[0].id
+  }
+
+  async voidLikeAlbum({ userId, albumId }) {
+    const query = {
+      name: 'void-user-album-likes',
+      text: 'DELETE FROM t_user_album_likes WHERE user_id = $1 AND album_id = $2 RETURNING id',
+      values: [userId, albumId]
+    }
+
+    const result = await this._pool.query(query)
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Like gagal dihapus. Id tidak ditemukan')
+    }
+
+    await this._redisService.delete(`albums:${albumId}`)
 
     return result.rows[0].id
   }

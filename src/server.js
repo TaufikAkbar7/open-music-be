@@ -42,8 +42,11 @@ const MailtrapService = require('./services/mailtrap')
 const uploads = require('./api/upload')
 const StorageService = require('./services/storage')
 
+const RedisService = require('./services/redis')
+
 const init = async () => {
-  const albumService = new AlbumService()
+  const redisService = new RedisService()
+  const albumService = new AlbumService(redisService)
   const songService = new SongService()
   const usersService = new UsersService()
   const authService = new AuthService()
