@@ -29,7 +29,7 @@ const routes = handler => [
         multipart: true,
         output: 'stream',
         parse: true,
-        maxBytes: 1000 * 1000 * 5
+        maxBytes: 512000
       }
     }
   },

@@ -2,7 +2,6 @@ require('dotenv').config()
 
 const Hapi = require('@hapi/hapi')
 const Jwt = require('@hapi/jwt')
-const amqp = require('amqplib')
 const Inert = require('@hapi/inert')
 const path = require('path')
 const ClientError = require('./exceptions/clientError')
@@ -36,9 +35,6 @@ const _exports = require('./api/exports')
 const ProducerService = require('./services/rabbitmq/producterService')
 const ExportsValidator = require('./validator/exports')
 
-const ListenerService = require('./services/rabbitmq/listenerService')
-const MailtrapService = require('./services/mailtrap')
-
 const uploads = require('./api/upload')
 const StorageService = require('./services/storage')
 
@@ -52,8 +48,6 @@ const init = async () => {
   const authService = new AuthService()
   const playlistsService = new PlaylistsService()
   const collaborationsService = new CollaborationsService()
-  const mailtrapService = new MailtrapService()
-  const listenerService = new ListenerService(playlistsService, mailtrapService)
   const storageService = new StorageService(
     path.resolve(__dirname, 'assets/uploads/images')
   )
@@ -214,18 +208,6 @@ const init = async () => {
     }
 
     return h.continue
-  })
-
-  // listener mq
-  const connection = await amqp.connect(process.env.RABBITMQ_SERVER)
-  const channel = await connection.createChannel()
-
-  await channel.assertQueue('export:playlists', {
-    durable: true
-  })
-
-  channel.consume('export:playlists', listenerService.getMessagePlaylist, {
-    noAck: true
   })
 
   await server.start()

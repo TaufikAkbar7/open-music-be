@@ -3,7 +3,9 @@ const redis = require('redis')
 class RedisService {
   constructor() {
     this._client = redis.createClient({
-      url: process.env.REDIS_SERVER
+      socket: {
+        host: process.env.REDIS_SERVER
+      }
     })
 
     this._client.on('error', error => {
